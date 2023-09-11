@@ -7,31 +7,57 @@ const rl = readline.createInterface({
 
 const tasks = [];
 
-const addTask = (desc) => {
-  const task = {
-    id: tasks.length + 1,
-    desc,
-    completed: false
-  };
-  
-  tasks.push(task);
+//...
+
+function addTask() {
+  return new Promise((resolve, reject) => {
+    rl.question('Ingresa el indicador:', async indicator => {
+      rl.question('Ingresa la descripción:', async description => {
+        tasks.push({
+          indicator,
+          description,
+          completed: false  
+        });
+        resolve();
+      });
+    }); 
+  });
 }
 
-const completeTask = (id) => {
-  const taskIndex = tasks.findIndex(t => t.id === id);
-  
-  if (taskIndex !== -1) {
-    tasks[taskIndex].completed = true;
-  }
+function removeTask() {
+  return new Promise((resolve, reject) => {
+    rl.question('Ingresa el indicador a eliminar:', async indicator => {
+      const index = tasks.findIndex(t => t.indicator === indicator);
+      if (index === -1) {
+        reject('No encontrado');  
+      } else {
+        tasks.splice(index, 1);
+        resolve();
+      }
+    });
+  });
 } 
 
-const deleteTask = (id) => {
-  const taskIndex = tasks.findIndex(t => t.id === id);
+async function main() {
+
+  console.log('¿Qué deseas hacer? [agregar/eliminar/completar/salir]');
   
-  if (taskIndex !== -1) {
-    tasks.splice(taskIndex, 1);
+  const answer = await rl.questionAsync();
+  
+  switch(answer) {
+    case 'agregar':
+      await addTask();
+      break;
+
+    case 'eliminar':
+      await removeTask().catch(err => {
+        console.log(err);
+      });
+      break;
   }
 }
+
+main();
 
 const printTasks = () => {
   tasks.forEach(t => {
